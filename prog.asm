@@ -1,24 +1,24 @@
-.data 
-	user_input: .space 9		#allocate 9 bytes of storage for 8 charecters in user_input label
+.data 					
+	user_input: .space 9		#9 bytes of space in memory allocated for user_input
 	invalid_input:	.asciiz "\n Invalid hexadecimal number \n"
 	newline: .asciiz "\n"  		# Newline character stored in memory under label newline 
 	
-.text					#Beginning of instructions
+.text					#Instructions
 
 main:
-	addi, $s3, $0, 0
-	li $v0, 8			#call code to read string
+	addi, $s3, $0, 0		#Initializing register $s3 
+	li $v0, 8			#call code to read string from user 
 	la $t0, user_input		#load address of user_input in register $t0
 	la $a0, ($t0)			#load address of user_input in $t0 to argument register $a0
 	la $a1, 9			#OS knows the max byte the user_input is going to be 
-	syscall				#syscall to read user_input and store the string in memory
+	syscall				#OS now reads user_input and store the string in memory address whose address is in register $t0
 
-	addi $t7, $t0, 8		#Address of 9th byte from $t0 is now stored into $t7
+	addi $t7, $t0, 8		#Go nine bytes from $t0, to hold the last byte of the string in memory
 	addi $s5, $t0, 0
 
 length_check:				#the length of the string in memory is checked in this label
-	lb $t1, 0($s5)
-	beq $t1, 0, sub_four
+	lb $t1, 0($s5)			1st byte of string is loaoded in $t1 
+	beq $t1, 0, sub_four		if $t1 has value 0 branch to sub-four label
 	beq $t1, 10, sub_four
 	addi $s3, $s3, 4
 	addi $s5, $s5, 1 
@@ -37,8 +37,8 @@ iterate_string:				#iterate through user_input to check if all the charectars ar
 	blt $t1, 58, valid		#branch to if_invalid label if value in $t1 is less than 58 (next ASCII dec for number 9)		
 	blt $t1, 65, invalid		# 65 = ASCII dec for 'A'
 	addi $s1, $0, 55
-	blt $t1, 71, valid		# 71 = ASCII dec for 'G' , user_input is valid up to 'F'
-	blt $t1, 97, invalid		# 97 = ASCII dec for 'a'
+	blt $t1, 71, valid		# if $t1 ascii value is less than 97, branch to invalid label
+	blt $t1, 97, invalid		#if $t1 is holding a character with ascii value less than 97 , branch to invalid label
 	addi $s1, $0, 87
 	blt $t1, 103, valid	
 	bgt $t1, 102, invalid		#branch to if_invalid if value in $t1 is greater than 102 (ASCII dec for 'f')
@@ -70,7 +70,7 @@ less_than_eight:			#if the value at offset 0 < 8 branch to this label
 	
 	mflo $a0			# move lower bits from register LO to $a0 and print
 	li $v0, 1			#call code to print integer 
-	syscall
+	syscalld
 	mfhi $s2			#move higher bits of register HI to $s2
 	
 exit_loop:
