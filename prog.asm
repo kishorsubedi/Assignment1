@@ -2,10 +2,16 @@
 	user_input: .space 9		#9 bytes of space in memory allocated for user_input
 	invalid_input:	.asciiz "\n Invalid hexadecimal number \n"
 	newline: .asciiz "\n"  		# Newline character stored in memory under label newline 
+	user_prompt: .asciiz "Enter a hexadecimal number:\n" 
 	
 .text					#Instructions
 
 main:
+	li $v0, 4			#call code for printing out string
+	la $t0, user_prompt		#address of user_prompt stored in $t0
+	la $a0, ($t0) 			#Argument register $a0 now has $t0's address
+	syscall 			#User_prompt is printed 
+	
 	addi, $s3, $0, 0		#Initializing register $s3 
 	li $v0, 8			#call code to read string from user 
 	la $t0, user_input		#load address of user_input in register $t0
@@ -17,8 +23,8 @@ main:
 	addi $s5, $t0, 0
 
 length_check:				#the length of the string in memory is checked in this label
-	lb $t1, 0($s5)			1st byte of string is loaoded in $t1 
-	beq $t1, 0, sub_four		if $t1 has value 0 branch to sub-four label
+	lb $t1, 0($s5)			#1st byte of string is loaoded in $t1 
+	beq $t1, 0, sub_four		#if $t1 has value 0 branch to sub-four label
 	beq $t1, 10, sub_four
 	addi $s3, $s3, 4
 	addi $s5, $s5, 1 
@@ -70,7 +76,7 @@ less_than_eight:			#if the value at offset 0 < 8 branch to this label
 	
 	mflo $a0			# move lower bits from register LO to $a0 and print
 	li $v0, 1			#call code to print integer 
-	syscalld
+	syscall
 	mfhi $s2			#move higher bits of register HI to $s2
 	
 exit_loop:
@@ -79,3 +85,4 @@ exit_loop:
 	syscall
 	li $v0, 10			#call code to exit program
 	syscall
+
